@@ -1,76 +1,156 @@
-# TrackerPro: Global Study & Curriculum Tracker 🚀
+# 🎓 TrackerPro — Global Study & Curriculum Tracker
 
-TrackerPro is a robust, global-scale B2C SaaS application designed to help students, professionals, and lifelong learners structure their curriculums, organize subjects dynamically, and forecast their goals with powerful, real-time analytics.
+A **full-stack SaaS application** built for students and professionals to create custom curriculums, dynamically manage subjects & tasks, track daily progress, and visualize learning analytics — all in real-time.
 
-Built to enterprise standards by **Aritra AI**, it features a stunning SEO-optimized marketing landing page, secure authentication, dynamic data visualization, and seamless light/dark mode transitions.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?logo=mongodb)](https://mongodb.com/atlas)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 
-## ✨ Key Features
+---
 
-- **Marketing Landing Page:** High-converting, SEO-optimized public face with pulsing framer-motion micro-animations.
-- **Advanced Interactive Dashboard:** A dedicated `/dashboard` workspace with persistent collapsible sidebar navigation.
-- **Dynamic Curriculum Builder:** Add, modify, and delete Custom Sections, Subjects, and Tasks on the fly. No more hardcoded data!
-- **Data Visualization & Analytics:** Features dynamic Recharts (Donut Charts) that automatically calculate your progress velocity and distribution.
-- **Secure Authentication:** Built-in credentials authentication flow powered by NextAuth.js and securely hashed with bcrypt.
-- **Enterprise-Grade Validation:** Complete Zod schema validation on backend routes to ensure robust data integrity into MongoDB.
-- **Fluid Theming:** Full support for System/Light/Dark mode via `next-themes` and Tailwind CSS.
+## ✨ Features
 
-## 🛠 Tech Stack
+| Feature | Description |
+|---|---|
+| 🔐 **Authentication** | Secure email/password auth via NextAuth.js with JWT sessions |
+| 📚 **Dynamic Curriculum** | Add/remove sections, subjects, and tasks on the fly |
+| ✅ **Progress Tracking** | Check off tasks with auto-debounced syncing to MongoDB |
+| 📊 **Analytics Dashboard** | Recharts-powered donut charts, completion %, and velocity stats |
+| 🌙 **Dark/Light Mode** | Seamless theme switching via `next-themes` |
+| 🔒 **Zod Validation** | Strict `.strict()` schema enforcement on all API payloads |
+| 🛡️ **Security Headers** | HSTS, X-Frame-Options, X-XSS-Protection via Edge Middleware |
+| ⚡ **Optimistic UI** | TanStack React Query with instant client-side cache updates |
+| 🤖 **AI Generation Stub** | Simulated LLM endpoint for future AI-powered curriculum generation |
 
-- **Framework:** Next.js 16 (App Router)
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 16 (App Router, Server Components)
 - **Language:** TypeScript
-- **Styling:** Tailwind CSS (v4) + Framer Motion
-- **Database:** MongoDB Atlas & Mongoose
-- **Authentication:** NextAuth.js (Auth.js)
-- **Validation:** Zod
-- **Data Visualization:** Recharts
-- **Icons:** Lucide-React
+- **Database:** MongoDB Atlas + Mongoose ODM
+- **Auth:** NextAuth.js (Credentials Provider, JWT Strategy)
+- **Styling:** Tailwind CSS + Framer Motion animations
+- **Charts:** Recharts (PieChart, Donut, Tooltip, Legend)
+- **State:** TanStack React Query (global caching, optimistic mutations)
+- **Validation:** Zod (strict schema enforcement)
+- **Testing:** Vitest + React Testing Library + Playwright E2E
+- **Icons:** Lucide React
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js 18+
+- MongoDB Atlas account (or local MongoDB)
 
-You need [Node.js](https://nodejs.org/) installed on your machine.
-A MongoDB cluster string (MongoDB Atlas is recommended).
-
-### Environment Variables
-
-Create a `.env.local` file in the root directory and add the following:
-
-```env
-# Your MongoDB Connection String
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/study-tracker?appName=AADI
-
-# NextAuth Secret (Generate a strong ranodm string, e.g. using `openssl rand -base64 32`)
-NEXTAUTH_SECRET=your_super_secret_string_here
-```
-
-### Installation
-
-1. Clone the repository and navigate into the project directory:
+### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
-cd study-tracker
+git clone https://github.com/Aadiaditya9421/Study-Tracker.git
+cd Study-Tracker
 ```
 
-2. Install the dependencies:
+### 2. Install dependencies
 ```bash
 npm install
 ```
 
-3. Run the development server:
+### 3. Configure environment variables
+Create a `.env.local` file in the project root:
+```env
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/study-tracker
+NEXTAUTH_SECRET=your_secret_key_here
+NEXTAUTH_URL=http://localhost:3000
+```
+
+### 4. Run the development server
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 💡 Usage Guide
+### 5. Build for production
+```bash
+npm run build
+npm start
+```
 
-1. **Sign Up:** Create a new account. Your profile will automatically be seeded with the default 40-Day Course & 45-Day Placement curriculum.
-2. **Dashboard:** Once logged in, you will be redirected to the interactive tracker. Navigate between "My Curriculum" to check off tasks, and "Overview" to view your analytics.
-3. **Customize:** Hover over any Section or Subject header to reveal inline actions (`Add Subject`, `Add Task`, or `Remove`).
-4. **Theme:** Use the sun/moon toggle at the bottom of the sidebar to switch themes.
+---
 
-## 📄 License
+## 🧪 Testing
 
-This project is licensed under the MIT License - see the LICENSE file for details. Built for global scale.
+```bash
+# Run unit & integration tests
+npx vitest run
+
+# Run E2E browser tests
+npx playwright test
+```
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/          # NextAuth + Registration endpoints
+│   │   ├── plan/          # Curriculum CRUD (GET, PUT)
+│   │   ├── tasks/         # Progress tracking (GET, POST)
+│   │   ├── ai/generate/   # AI curriculum generation stub
+│   │   └── reset/         # Progress reset endpoint
+│   ├── dashboard/
+│   │   ├── page.tsx       # Main curriculum tracker
+│   │   ├── overview/      # Analytics dashboard
+│   │   └── layout.tsx     # Protected layout with sidebar
+│   ├── login/             # Login page
+│   ├── register/          # Registration page
+│   └── page.tsx           # Marketing landing page
+├── components/
+│   ├── StudyTracker.tsx    # Core tracker with full CRUD
+│   ├── SectionCard.tsx     # Section renderer with subject/task management
+│   ├── TaskList.tsx        # Checkbox-based task list
+│   ├── Dashboard.tsx       # Progress bars overview
+│   ├── Sidebar.tsx         # Navigation sidebar
+│   └── ui/                # Reusable UI primitives
+├── hooks/
+│   └── useStudyData.ts    # TanStack Query hooks for data fetching
+├── lib/
+│   ├── mongodb.ts         # Connection pooling with race-condition protection
+│   └── validations.ts     # Zod schemas with strict() enforcement
+├── models/                # Mongoose schemas (User, StudyPlan, UserProgress)
+├── middleware.ts           # Edge auth guard + security headers
+└── utils/
+    ├── tasks-data.ts      # Default curriculum seed data
+    └── cn.ts              # Tailwind class merger utility
+```
+
+---
+
+## 🔑 API Routes
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register a new user with seeded curriculum |
+| `GET` | `/api/plan` | Fetch the user's study plan |
+| `PUT` | `/api/plan` | Update sections/subjects/tasks (Zod validated) |
+| `GET` | `/api/tasks` | Fetch task completion progress |
+| `POST` | `/api/tasks` | Save task completion states |
+| `POST` | `/api/reset` | Reset all progress (keeps plan structure) |
+| `POST` | `/api/ai/generate` | AI curriculum generation (stub) |
+
+---
+
+## 📜 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/Aadiaditya9421">Aditya</a>
+</p>
