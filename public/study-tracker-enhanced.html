@@ -557,6 +557,7 @@
 
     <div class="action-row">
         <button class="btn btn-primary" id="addSectionBtn">➕ Add Custom Section</button>
+        <button class="btn btn-primary" id="saveBtn" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.3);">💾 Save Changes</button>
         <button class="btn btn-export" id="exportBtn">📥 Export Progress</button>
         <button class="btn btn-danger" id="resetBtn">🗑️ Reset All Progress</button>
     </div>
@@ -752,10 +753,42 @@ async function loadFromAPI() {
     }
 }
 
+async function savePlanToAPI() {
+    if (!isOnline) return;
+    // Combine static + dynamic into one plan for the API
+    const allSections = [
+        ...STATIC_SECTIONS,
+        ...dynamicSections.map(ds => ({
+            id: ds.id,
+            title: ds.title,
+            groups: [{ id: ds.id, title: ds.title, tasks: ds.tasks }],
+        })),
+    ];
+    try {
+        updateSyncStatus('saving');
+        const res = await fetch('/api/plan', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sections: allSections }),
+        });
+        if (res.ok) {
+            updateSyncStatus('synced');
+            saveJSON(LS_KEYS.PLAN_CACHE, allSections);
+        } else {
+            updateSyncStatus('error');
+        }
+    } catch {
+        updateSyncStatus('error');
+    }
+}
+
 function updateSyncStatus(status) {
     const el = document.getElementById('sync-status');
     if (!el) return;
-    if (status === 'synced') {
+    if (status === 'saving') {
+        el.textContent = '⏳ Saving...';
+        el.style.color = 'var(--primary)';
+    } else if (status === 'synced') {
         el.textContent = '☁️ Synced to Database';
         el.style.color = 'var(--success)';
     } else if (status === 'error') {
@@ -1061,6 +1094,7 @@ function renderDynamicSections() {
             if (confirm(`Delete section "${section.title}"?`)) {
                 dynamicSections.splice(sIdx, 1);
                 saveDynamic();
+                savePlanToAPI();
                 renderAll();
             }
         });
@@ -1099,6 +1133,7 @@ function renderDynamicSections() {
             if (name && name.trim()) {
                 section.tasks.push({ id: `dyn-${Date.now()}`, title: name.trim() });
                 saveDynamic();
+                savePlanToAPI();
                 renderAll();
             }
         });
@@ -1155,8 +1190,19 @@ document.getElementById('addSectionBtn').addEventListener('click', () => {
     if (title && title.trim()) {
         dynamicSections.push({ id: `custom-${Date.now()}`, title: title.trim(), tasks: [] });
         saveDynamic();
+        savePlanToAPI();
         renderAll();
     }
+});
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('saveBtn');
+    btn.textContent = '⏳ Saving...';
+    btn.disabled = true;
+    await savePlanToAPI();
+    await syncProgressToAPI();
+    btn.textContent = '✅ Saved!';
+    setTimeout(() => { btn.textContent = '💾 Save Changes'; btn.disabled = false; }, 2000);
 });
 
 document.getElementById('exportBtn').addEventListener('click', () => {
@@ -1177,14 +1223,19 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-document.getElementById('resetBtn').addEventListener('click', () => {
+document.getElementById('resetBtn').addEventListener('click', async () => {
     if (confirm('Are you sure you want to reset ALL progress and delete custom sections? This cannot be undone.')) {
         checkedSet.clear();
         dynamicSections = [];
         titleOverrides = {};
         taskDates = {};
         taskOrder = {};
-        Object.values(LS_KEYS).forEach(k => { if (k !== LS_KEYS.THEME) localStorage.removeItem(k); });
+        Object.values(LS_KEYS).forEach(k => { if (k !== LS_KEYS.THEME && k !== LS_KEYS.PLAN_CACHE) localStorage.removeItem(k); });
+        // Also reset in MongoDB
+        if (isOnline) {
+            try { await fetch('/api/reset', { method: 'POST' }); } catch {}
+            savePlanToAPI();
+        }
         renderAll();
     }
 });
