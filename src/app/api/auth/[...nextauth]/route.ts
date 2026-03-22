@@ -39,8 +39,6 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        //@ts-ignore
-        token.isPro = user.isPro;
       }
       return token;
     },
@@ -48,8 +46,6 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         //@ts-ignore
         session.user.id = token.id as string;
-        //@ts-ignore
-        session.user.isPro = token.isPro as boolean;
       }
       return session;
     },

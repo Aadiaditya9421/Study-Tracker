@@ -18,7 +18,7 @@ export function TaskList({
   className,
 }: TaskListProps) {
   if (tasks.length === 0) {
-    return <p className="text-sm text-gray-400 italic px-2">No tasks added yet.</p>;
+    return <p className="text-sm text-gray-400 dark:text-slate-500 italic px-2">No tasks added yet.</p>;
   }
 
   return (
@@ -30,8 +30,8 @@ export function TaskList({
           <li
             key={task.id}
             className={cn(
-              'flex items-start justify-between group rounded-lg p-2 transition-colors hover:bg-gray-50',
-              isCompleted && 'bg-indigo-50/50 hover:bg-indigo-50'
+              'flex items-start justify-between group rounded-lg p-2 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800',
+              isCompleted && 'bg-indigo-50/50 dark:bg-indigo-900/20 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
             )}
           >
             <label className="flex items-start cursor-pointer w-full relative pr-4">
@@ -46,8 +46,8 @@ export function TaskList({
               <div className="ml-3 text-sm flex-1">
                 <span
                   className={cn(
-                    'text-gray-700 font-medium select-none transition-colors transition-opacity duration-200',
-                    isCompleted && 'text-gray-400 line-through opacity-70'
+                    'text-gray-700 dark:text-slate-300 font-medium select-none transition-colors transition-opacity duration-200',
+                    isCompleted && 'text-gray-400 dark:text-slate-500 line-through opacity-70'
                   )}
                 >
                   {task.title}
@@ -56,7 +56,7 @@ export function TaskList({
             </label>
             <button
                onClick={(e) => { e.preventDefault(); onDeleteTask(task.id); }}
-               className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+               className="text-gray-400 dark:text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
                title="Remove task"
             >
               <X className="w-4 h-4" />

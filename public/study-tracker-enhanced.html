@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Progress Tracker</title>
+    <meta name="description" content="Track your study progress with a premium interactive study tracker. Features dark mode, due dates, drag-and-drop, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================
+           DESIGN SYSTEM — CSS Custom Properties
+           ============================================================ */
+        :root {
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+            /* Light Mode */
+            --bg: #f0f2f5;
+            --bg-card: rgba(255, 255, 255, 0.75);
+            --bg-card-solid: #ffffff;
+            --bg-input: #ffffff;
+            --bg-section-header: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --text-xs: #94a3b8;
+            --border: #e2e8f0;
+            --border-input: #cbd5e1;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.08);
+            --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+            --progress-track: #e2e8f0;
+            --progress-fill: linear-gradient(90deg, #6366f1, #8b5cf6);
+            --glass-blur: blur(12px);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -5px rgba(0,0,0,0.04);
+            --tip-bg: rgba(99, 102, 241, 0.08);
+            --tip-border: rgba(99, 102, 241, 0.2);
+            --tip-text: #4f46e5;
+            --checkbox-accent: #6366f1;
+            --drag-bg: rgba(99, 102, 241, 0.05);
+            --overdue-bg: rgba(239, 68, 68, 0.08);
+            --overdue-border: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            --bg: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --bg-card-solid: #1e293b;
+            --bg-input: #1e293b;
+            --bg-section-header: linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #7c3aed 100%);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-xs: #64748b;
+            --border: #334155;
+            --border-input: #475569;
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --primary-glow: rgba(129, 140, 248, 0.15);
+            --success: #34d399;
+            --success-bg: rgba(52, 211, 153, 0.1);
+            --danger: #f87171;
+            --danger-bg: rgba(248, 113, 113, 0.1);
+            --accent-gradient: linear-gradient(135deg, #818cf8, #a78bfa, #c4b5fd);
+            --progress-track: #334155;
+            --progress-fill: linear-gradient(90deg, #818cf8, #a78bfa);
+            --glass-blur: blur(16px);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.4);
+            --tip-bg: rgba(129, 140, 248, 0.1);
+            --tip-border: rgba(129, 140, 248, 0.25);
+            --tip-text: #a5b4fc;
+            --checkbox-accent: #818cf8;
+            --drag-bg: rgba(129, 140, 248, 0.08);
+            --overdue-bg: rgba(248, 113, 113, 0.1);
+            --overdue-border: rgba(248, 113, 113, 0.3);
+        }
+
+        /* ============================================================
+           BASE & RESET
+           ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* ============================================================
+           LAYOUT
+           ============================================================ */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 16px 60px;
+            position: relative;
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .header { text-align: center; margin-bottom: 8px; }
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 900;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        /* ============================================================
+           THEME TOGGLE
+           ============================================================ */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            color: var(--text);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            font-size: 1.3em;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); }
+        .theme-toggle .icon { transition: transform 0.4s ease; display: inline-block; }
+        body.dark-mode .theme-toggle .icon { transform: rotate(180deg); }
+
+        /* ============================================================
+           TIP BANNER
+           ============================================================ */
+        .tip {
+            text-align: center;
+            background: var(--tip-bg);
+            border: 1px solid var(--tip-border);
+            padding: 14px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-size: 0.88em;
+            color: var(--tip-text);
+            font-weight: 500;
+            line-height: 1.7;
+            transition: all 0.3s ease;
+        }
+
+        /* ============================================================
+           DASHBOARD CARDS
+           ============================================================ */
+        .dashboard { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+        .dash-card {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .dash-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .dash-card h3 { font-size: 0.8em; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
+        .dash-card .stat { font-size: 1.5em; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ============================================================
+           SECTION CARD
+           ============================================================ */
+        .section {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .section:hover { box-shadow: var(--shadow-lg); }
+
+        .section-header {
+            background: var(--bg-section-header);
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .section-header::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 300px; height: 300px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .section-header h2 {
+            color: white;
+            font-size: 1.15em;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+        }
+        .collapse-icon {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .section.collapsed .collapse-icon { transform: rotate(-90deg); }
+        .section-body {
+            padding: 24px;
+            max-height: 5000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+        .section.collapsed .section-body {
+            max-height: 0;
+            padding: 0 24px;
+            opacity: 0;
+        }
+
+        .delete-sec-btn {
+            position: absolute;
+            top: 20px; right: 60px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85em;
+            padding: 6px 10px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 2;
+        }
+        .section-header:hover .delete-sec-btn { opacity: 1; }
+        .delete-sec-btn:hover { background: rgba(239, 68, 68, 0.6); }
+
+        /* ============================================================
+           SUBJECT GROUPS
+           ============================================================ */
+        .group-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--text);
+            margin: 24px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .group-title:first-child { margin-top: 0; }
+
+        /* ============================================================
+           TASK ITEMS
+           ============================================================ */
+        .task-list { list-style: none; padding: 0; margin: 0; }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: grab;
+        }
+        .task-item:hover { background: var(--drag-bg); }
+        .task-item.dragging { opacity: 0.4; cursor: grabbing; }
+        .task-item.drag-over { border-top: 2px solid var(--primary); }
+        .task-item.overdue { background: var(--overdue-bg); border: 1px solid var(--overdue-border); }
+
+        .task-item input[type="checkbox"] {
+            width: 20px; height: 20px;
+            cursor: pointer;
+            accent-color: var(--checkbox-accent);
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: transform 0.15s ease;
+        }
+        .task-item input[type="checkbox"]:checked { transform: scale(1.1); }
+
+        .task-label {
+            flex: 1;
+            font-size: 0.92em;
+            font-weight: 500;
+            color: var(--text);
+            transition: all 0.2s ease;
+        }
+        .task-item.completed .task-label {
+            text-decoration: line-through;
+            color: var(--text-xs);
+            opacity: 0.7;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .task-item:hover .task-actions { opacity: 1; }
+
+        .task-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: all 0.15s ease;
+        }
+        .task-action-btn:hover { background: var(--primary-glow); color: var(--primary); }
+        .task-action-btn.danger:hover { background: var(--danger-bg); color: var(--danger); }
+
+        .task-date {
+            font-size: 0.75em;
+            color: var(--text-xs);
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: var(--primary-glow);
+            white-space: nowrap;
+        }
+        .task-date.overdue-date {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .task-edit-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1.5px solid var(--primary);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-family: var(--font);
+            font-size: 0.92em;
+            color: var(--text);
+            outline: none;
+        }
+
+        .date-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-family: var(--font);
+            font-size: 0.75em;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        /* ============================================================
+           PROGRESS BAR
+           ============================================================ */
+        .progress-container {
+            margin-top: 16px;
+            background: var(--progress-track);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--progress-fill);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .progress-text {
+            display: block;
+            text-align: right;
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           BUTTONS
+           ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s ease;
+            font-family: var(--font);
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover { box-shadow: 0 6px 25px rgba(99, 102, 241, 0.45); transform: translateY(-1px); }
+
+        .btn-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .btn-export {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .btn-export:hover { background: var(--success); color: white; }
+
+        .btn-small {
+            padding: 7px 14px;
+            font-size: 0.82em;
+            border-radius: 8px;
+            background: var(--primary-glow);
+            color: var(--primary);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: var(--font);
+            transition: all 0.2s ease;
+        }
+        .btn-small:hover { background: var(--primary); color: white; }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+            justify-content: center;
+        }
+
+        /* ============================================================
+           ANIMATIONS
+           ============================================================ */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section { animation: fadeInUp 0.4s ease forwards; }
+        .section:nth-child(2) { animation-delay: 0.05s; }
+        .section:nth-child(3) { animation-delay: 0.1s; }
+
+        @keyframes checkPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1.1); }
+        }
+        .task-item input[type="checkbox"]:checked { animation: checkPop 0.25s ease; }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 640px) {
+            .container { padding: 16px 12px 40px; }
+            .header h1 { font-size: 1.8em; }
+            .dashboard { flex-direction: column; }
+            .dash-card { min-width: auto; }
+            .section-header h2 { font-size: 0.95em; }
+            .section-body { padding: 16px; }
+            .section.collapsed .section-body { padding: 0 16px; }
+            .task-actions { opacity: 1; }
+            .task-item { padding: 12px 8px; gap: 8px; }
+            .task-item input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; }
+            .task-label { font-size: 0.88em; }
+            .btn { width: 100%; padding: 16px; }
+            .action-row { flex-direction: column; }
+            .theme-toggle { width: 44px; height: 44px; top: 12px; right: 12px; font-size: 1.1em; border-radius: 12px; }
+            .delete-sec-btn { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggleBtn"><span class="icon">🌙</span></button>
+
+<div class="container">
+    <div class="header">
+        <h1>📋 Study Progress Tracker</h1>
+    </div>
+    <div class="subtitle">Total Duration: 40 Days (Courses) + 45 Days (Placement)</div>
+
+    <div class="tip">
+        ✏️ Tick boxes as you complete each item · Progress is saved automatically!<br>
+        💡 Drag to reorder · Click ✏️ to edit · Set 📅 due dates · 📥 Export your progress
+    </div>
+
+    <div class="dashboard">
+        <div class="dash-card">
+            <h3>📚 COURSES</h3>
+            <div class="stat" id="dash-courses-text">0 / 12</div>
+        </div>
+        <div class="dash-card">
+            <h3>🎯 PLACEMENT</h3>
+            <div class="stat" id="dash-placement-text">0 / 5</div>
+        </div>
+    </div>
+
+    <div id="static-sections"></div>
+    <div id="dynamic-sections"></div>
+
+    <div class="action-row">
+        <button class="btn btn-primary" id="addSectionBtn">➕ Add Custom Section</button>
+        <button class="btn btn-export" id="exportBtn">📥 Export Progress</button>
+        <button class="btn btn-danger" id="resetBtn">🗑️ Reset All Progress</button>
+    </div>
+</div>
+
+<script>
+// ================================================================
+//  DATA MODEL
+// ================================================================
+const STATIC_SECTIONS = [
+    {
+        id: 'section-1', title: 'SECTION 1 — COURSES TO COMPLETE [40 Days]',
+        groups: [
+            { id: 'certs', title: 'Certifications', tasks: [
+                { id: 'c1', title: 'Google Cloud Certificate' },
+                { id: 'c2', title: 'Specific Data Engineering Projects' },
+                { id: 'c3', title: 'Data Analyst 12-hour course' },
+                { id: 'c4', title: '(With projects — refer to other videos in the playlist)' },
+            ]},
+            { id: '1b', title: 'Complete My Own Course (Up to Gen-AI Requisites)', tasks: [
+                { id: '1b1', title: 'NLP' },
+                { id: '1b2', title: 'Deep Learning with ANN' },
+                { id: '1b3', title: 'RNN' },
+                { id: '1b4', title: 'LSTM GRU' },
+                { id: '1b5', title: 'Bi-directional RNN (No code from here)' },
+                { id: '1b6', title: 'Encoder Decoder' },
+                { id: '1b7', title: 'Attention Mechanism (Important for Transformer)' },
+                { id: '1b8', title: 'Transformer' },
+            ]},
+        ]
+    },
+    {
+        id: 'section-2', title: 'SECTION 2 — PLACEMENT EXCLUSIVES [45 Days]',
+        groups: [
+            { id: 'placement', title: 'Placement Tasks', tasks: [
+                { id: 'p1', title: 'DSA [Tree, Graph, DP] — 25 days allocated', placement: true },
+                { id: 'p2', title: 'Aptitude — 8 days allocated', placement: true },
+                { id: 'p3', title: 'Core Fundamentals — 7 days allocated', placement: true },
+                { id: 'p4', title: 'System Design — 2 days allocated', placement: true },
+                { id: 'p5', title: 'DSA Revision — 14 days allocated', placement: true },
+            ]},
+        ]
+    },
+    {
+        id: 'section-3', title: 'SECTION 3 — MONTHLY DEADLINES',
+        groups: [
+            { id: 'march', title: '📅 March Deadlines', tasks: [
+                { id: 'm1', title: 'Andrew Ng Course' },
+                { id: 'm2', title: 'Start Tree (2 hours)' },
+            ]},
+            { id: 'april', title: '📅 April Deadlines', tasks: [
+                { id: 'a1', title: 'Complete Tree and DP' },
+                { id: 'a2', title: 'Complete my own course' },
+            ]},
+            { id: 'may', title: '📅 May Deadlines', tasks: [
+                { id: 'may1', title: 'Up to Gen-AI Requisites' },
+                { id: 'may2', title: 'Get hands-on understanding of RAGs and LLMs' },
+                { id: 'may3', title: 'Aptitude' },
+                { id: 'may4', title: 'Core Fundamentals' },
+                { id: 'may5', title: 'Complete Graph' },
+                { id: 'may6', title: 'DSA Revision' },
+            ]},
+            { id: 'june', title: '📅 June Deadlines', tasks: [
+                { id: 'j1', title: 'Google Cloud Certificate' },
+                { id: 'j2', title: 'Specific Data Engineering Projects' },
+                { id: 'j3', title: 'Data Analyst 12-hour course' },
+                { id: 'j4', title: 'With projects — refer to playlist' },
+                { id: 'j5', title: 'System Design' },
+                { id: 'j6', title: 'Aptitude' },
+                { id: 'j7', title: 'Core Fundamentals' },
+                { id: 'j8', title: 'Complete Graph' },
+                { id: 'j9', title: 'DSA Revision' },
+            ]},
+        ]
+    },
+];
+
+// ================================================================
+//  STATE MANAGEMENT
+// ================================================================
+const LS_KEYS = {
+    THEME: 'st_theme',
+    CHECKED: 'st_checked',
+    DYNAMIC: 'st_dynamic',
+    COLLAPSED: 'st_collapsed',
+    TITLES: 'st_titles',
+    DATES: 'st_dates',
+    ORDER: 'st_order',
+};
+
+function loadJSON(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; }
+}
+function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+let checkedSet = new Set(loadJSON(LS_KEYS.CHECKED, []));
+let dynamicSections = loadJSON(LS_KEYS.DYNAMIC, []);
+let collapsedSet = new Set(loadJSON(LS_KEYS.COLLAPSED, []));
+let titleOverrides = loadJSON(LS_KEYS.TITLES, {});
+let taskDates = loadJSON(LS_KEYS.DATES, {});
+let taskOrder = loadJSON(LS_KEYS.ORDER, {});
+
+function saveChecked() { saveJSON(LS_KEYS.CHECKED, [...checkedSet]); }
+function saveDynamic() { saveJSON(LS_KEYS.DYNAMIC, dynamicSections); }
+function saveCollapsed() { saveJSON(LS_KEYS.COLLAPSED, [...collapsedSet]); }
+function saveTitles() { saveJSON(LS_KEYS.TITLES, titleOverrides); }
+function saveDates() { saveJSON(LS_KEYS.DATES, taskDates); }
+function saveOrder() { saveJSON(LS_KEYS.ORDER, taskOrder); }
+
+// ================================================================
+//  THEME
+// ================================================================
+const themeBtn = document.getElementById('themeToggleBtn');
+const iconSpan = themeBtn.querySelector('.icon');
+
+function applyTheme(dark) {
+    document.body.classList.toggle('dark-mode', dark);
+    iconSpan.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem(LS_KEYS.THEME, dark ? 'dark' : 'light');
+}
+
+// Init: check saved → system preference
+const savedTheme = localStorage.getItem(LS_KEYS.THEME);
+if (savedTheme === 'dark') applyTheme(true);
+else if (savedTheme === 'light') applyTheme(false);
+else if (window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme(true);
+
+themeBtn.addEventListener('click', () => applyTheme(!document.body.classList.contains('dark-mode')));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!localStorage.getItem(LS_KEYS.THEME)) applyTheme(e.matches);
+});
+
+// ================================================================
+//  RENDERING HELPERS
+// ================================================================
+function getTaskTitle(taskId, original) { return titleOverrides[taskId] || original; }
+
+function getOrderedTasks(groupId, tasks) {
+    const order = taskOrder[groupId];
+    if (!order) return [...tasks];
+    const map = {};
+    tasks.forEach(t => map[t.id] = t);
+    const ordered = [];
+    order.forEach(id => { if (map[id]) { ordered.push(map[id]); delete map[id]; } });
+    Object.values(map).forEach(t => ordered.push(t));
+    return ordered;
+}
+
+function isOverdue(taskId) {
+    const d = taskDates[taskId];
+    if (!d) return false;
+    return new Date(d) < new Date(new Date().toDateString()) && !checkedSet.has(taskId);
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ================================================================
+//  DRAG AND DROP STATE
+// ================================================================
+let dragState = { taskId: null, groupId: null, sourceType: null };
+
+// ================================================================
+//  RENDER TASK ITEM
+// ================================================================
+function createTaskEl(task, groupId, sourceType, onDelete) {
+    const taskId = task.id;
+    const title = getTaskTitle(taskId, task.title);
+    const checked = checkedSet.has(taskId);
+    const overdue = isOverdue(taskId);
+
+    const li = document.createElement('li');
+    li.className = 'task-item' + (checked ? ' completed' : '') + (overdue ? ' overdue' : '');
+    li.draggable = true;
+    li.dataset.taskId = taskId;
+
+    // Drag events
+    li.addEventListener('dragstart', e => {
+        dragState = { taskId, groupId, sourceType };
+        li.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => li.classList.remove('dragging'));
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        if (dragState.groupId === groupId && dragState.taskId !== taskId) {
+            reorderTask(groupId, dragState.taskId, taskId, sourceType);
+        }
+    });
+
+    // Checkbox
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = checked;
+    cb.addEventListener('change', () => {
+        if (cb.checked) checkedSet.add(taskId); else checkedSet.delete(taskId);
+        saveChecked();
+        renderAll();
+    });
+
+    // Label
+    const label = document.createElement('span');
+    label.className = 'task-label';
+    label.textContent = title;
+
+    // Date badge
+    const dateStr = taskDates[taskId];
+    let dateEl = null;
+    if (dateStr) {
+        dateEl = document.createElement('span');
+        dateEl.className = 'task-date' + (overdue ? ' overdue-date' : '');
+        dateEl.textContent = (overdue ? '⚠ ' : '📅 ') + formatDate(dateStr);
+    }
+
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'task-actions';
+
+    // Edit button
+    const editBtn = document.createElement('button');
+    editBtn.className = 'task-action-btn';
+    editBtn.textContent = '✏️';
+    editBtn.title = 'Edit task';
+    editBtn.addEventListener('click', () => startInlineEdit(li, taskId, title));
+    actions.appendChild(editBtn);
+
+    // Date button
+    const dateBtn = document.createElement('button');
+    dateBtn.className = 'task-action-btn';
+    dateBtn.textContent = '📅';
+    dateBtn.title = 'Set due date';
+    dateBtn.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'date';
+        input.className = 'date-input';
+        input.value = taskDates[taskId] || '';
+        input.addEventListener('change', () => {
+            if (input.value) taskDates[taskId] = input.value;
+            else delete taskDates[taskId];
+            saveDates();
+            renderAll();
+        });
+        input.addEventListener('blur', () => renderAll());
+        actions.replaceWith(input);
+        input.showPicker?.();
+        input.focus();
+    });
+    actions.appendChild(dateBtn);
+
+    // Delete button
+    if (onDelete) {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'task-action-btn danger';
+        delBtn.textContent = '✖';
+        delBtn.title = 'Delete task';
+        delBtn.addEventListener('click', () => { onDelete(taskId); renderAll(); });
+        actions.appendChild(delBtn);
+    }
+
+    li.appendChild(cb);
+    li.appendChild(label);
+    if (dateEl) li.appendChild(dateEl);
+    li.appendChild(actions);
+    return li;
+}
+
+function startInlineEdit(li, taskId, current) {
+    li.innerHTML = '';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'task-edit-input';
+    input.value = current;
+    const save = () => {
+        const v = input.value.trim();
+        if (v && v !== current) { titleOverrides[taskId] = v; saveTitles(); }
+        renderAll();
+    };
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') renderAll(); });
+    input.addEventListener('blur', save);
+    li.appendChild(input);
+    input.focus();
+    input.select();
+}
+
+function reorderTask(groupId, dragId, dropId, sourceType) {
+    let tasks;
+    if (sourceType === 'static') {
+        const group = STATIC_SECTIONS.flatMap(s => s.groups).find(g => g.id === groupId);
+        if (!group) return;
+        tasks = getOrderedTasks(groupId, group.tasks).map(t => t.id);
+    } else {
+        const sec = dynamicSections.find(s => s.id === groupId);
+        if (!sec) return;
+        tasks = sec.tasks.map(t => t.id);
+    }
+    const dragIdx = tasks.indexOf(dragId);
+    const dropIdx = tasks.indexOf(dropId);
+    if (dragIdx < 0 || dropIdx < 0) return;
+    tasks.splice(dragIdx, 1);
+    tasks.splice(dropIdx, 0, dragId);
+    if (sourceType === 'static') {
+        taskOrder[groupId] = tasks;
+        saveOrder();
+    } else {
+        const sec = dynamicSections.find(s => s.id === groupId);
+        const map = {};
+        sec.tasks.forEach(t => map[t.id] = t);
+        sec.tasks = tasks.map(id => map[id]).filter(Boolean);
+        saveDynamic();
+    }
+    renderAll();
+}
+
+// ================================================================
+//  RENDER SECTIONS
+// ================================================================
+function renderStaticSections() {
+    const container = document.getElementById('static-sections');
+    container.innerHTML = '';
+
+    STATIC_SECTIONS.forEach(section => {
+        const secDiv = document.createElement('div');
+        secDiv.className = 'section' + (collapsedSet.has(section.id) ? ' collapsed' : '');
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerHTML = `<h2>${section.title}</h2><span class="collapse-icon">▼</span>`;
+        header.addEventListener('click', e => {
+            if (e.target.closest('.delete-sec-btn')) return;
+            if (collapsedSet.has(section.id)) collapsedSet.delete(section.id);
+            else collapsedSet.add(section.id);
+            saveCollapsed();
+            secDiv.classList.toggle('collapsed');
+        });
+        secDiv.appendChild(header);
+
+        // Body
+        const body = document.createElement('div');
+        body.className = 'section-body';
+
+        section.groups.forEach(group => {
+            const gt = document.createElement('h3');
+            gt.className = 'group-title';
+            gt.textContent = group.title;
+            body.appendChild(gt);
+
+            const ul = document.createElement('ul');
+            ul.className = 'task-list';
+            const ordered = getOrderedTasks(group.id, group.tasks);
+            ordered.forEach(task => {
+                ul.appendChild(createTaskEl(task, group.id, 'static', null));
+            });
+            body.appendChild(ul);
+
+            // Progress
+            const checked = ordered.filter(t => checkedSet.has(t.id)).length;
+            const total = ordered.length;
+            const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+            const progCont = document.createElement('div');
+            progCont.className = 'progress-container';
+            progCont.innerHTML = `<div class="progress-bar" style="width:${pct}%"></div>`;
+            body.appendChild(progCont);
+
+            const progText = document.createElement('span');
+            progText.className = 'progress-text';
+            progText.textContent = `${checked} / ${total} completed [ ${pct}% ]`;
+            body.appendChild(progText);
+        });
+
+        secDiv.appendChild(body);
+        container.appendChild(secDiv);
+    });
+}
+
+function renderDynamicSections() {
+    const container = document.getElementById('dynamic-sections');
+    container.innerHTML = '';
+
+    dynamicSections.forEach((section, sIdx) => {
+        const secDiv = document.createElement('div');
+        secDiv.className = 'section' + (collapsedSet.has(section.id) ? ' collapsed' : '');
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerHTML = `<h2>${section.title}</h2><span class="collapse-icon">▼</span>`;
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-sec-btn';
+        delBtn.textContent = '✖ Delete';
+        delBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (confirm(`Delete section "${section.title}"?`)) {
+                dynamicSections.splice(sIdx, 1);
+                saveDynamic();
+                renderAll();
+            }
+        });
+        header.appendChild(delBtn);
+
+        header.addEventListener('click', e => {
+            if (e.target.closest('.delete-sec-btn')) return;
+            if (collapsedSet.has(section.id)) collapsedSet.delete(section.id);
+            else collapsedSet.add(section.id);
+            saveCollapsed();
+            secDiv.classList.toggle('collapsed');
+        });
+        secDiv.appendChild(header);
+
+        // Body
+        const body = document.createElement('div');
+        body.className = 'section-body';
+
+        const ul = document.createElement('ul');
+        ul.className = 'task-list';
+        section.tasks.forEach(task => {
+            ul.appendChild(createTaskEl(task, section.id, 'dynamic', (taskId) => {
+                section.tasks = section.tasks.filter(t => t.id !== taskId);
+                saveDynamic();
+            }));
+        });
+        body.appendChild(ul);
+
+        // Add task button
+        const addTaskBtn = document.createElement('button');
+        addTaskBtn.className = 'btn-small';
+        addTaskBtn.textContent = '➕ Add Task';
+        addTaskBtn.style.marginTop = '12px';
+        addTaskBtn.addEventListener('click', () => {
+            const name = prompt('Enter new task description:');
+            if (name && name.trim()) {
+                section.tasks.push({ id: `dyn-${Date.now()}`, title: name.trim() });
+                saveDynamic();
+                renderAll();
+            }
+        });
+        body.appendChild(addTaskBtn);
+
+        // Progress
+        const checked = section.tasks.filter(t => checkedSet.has(t.id)).length;
+        const total = section.tasks.length;
+        const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+        const progCont = document.createElement('div');
+        progCont.className = 'progress-container';
+        progCont.style.marginTop = '16px';
+        progCont.innerHTML = `<div class="progress-bar" style="width:${pct}%"></div>`;
+        body.appendChild(progCont);
+
+        const progText = document.createElement('span');
+        progText.className = 'progress-text';
+        progText.textContent = `${checked} / ${total} completed [ ${pct}% ]`;
+        body.appendChild(progText);
+
+        secDiv.appendChild(body);
+        container.appendChild(secDiv);
+    });
+}
+
+function updateDashboard() {
+    let coursesChecked = 0, coursesTotal = 0;
+    STATIC_SECTIONS[0].groups.forEach(g => {
+        coursesTotal += g.tasks.length;
+        coursesChecked += g.tasks.filter(t => checkedSet.has(t.id)).length;
+    });
+    document.getElementById('dash-courses-text').textContent = `${coursesChecked} / ${coursesTotal}`;
+
+    let placementChecked = 0, placementTotal = 0;
+    STATIC_SECTIONS[1].groups.forEach(g => {
+        placementTotal += g.tasks.length;
+        placementChecked += g.tasks.filter(t => checkedSet.has(t.id)).length;
+    });
+    document.getElementById('dash-placement-text').textContent = `${placementChecked} / ${placementTotal}`;
+}
+
+function renderAll() {
+    renderStaticSections();
+    renderDynamicSections();
+    updateDashboard();
+}
+
+// ================================================================
+//  BUTTON HANDLERS
+// ================================================================
+document.getElementById('addSectionBtn').addEventListener('click', () => {
+    const title = prompt('Enter a title for the new section:');
+    if (title && title.trim()) {
+        dynamicSections.push({ id: `custom-${Date.now()}`, title: title.trim(), tasks: [] });
+        saveDynamic();
+        renderAll();
+    }
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const data = {
+        exportedAt: new Date().toISOString(),
+        checked: [...checkedSet],
+        dynamicSections,
+        titleOverrides,
+        taskDates,
+        taskOrder,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `study-progress-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset ALL progress and delete custom sections? This cannot be undone.')) {
+        checkedSet.clear();
+        dynamicSections = [];
+        titleOverrides = {};
+        taskDates = {};
+        taskOrder = {};
+        Object.values(LS_KEYS).forEach(k => { if (k !== LS_KEYS.THEME) localStorage.removeItem(k); });
+        renderAll();
+    }
+});
+
+// ================================================================
+//  INITIALIZATION
+// ================================================================
+renderAll();
+</script>
+</body>
+</html>

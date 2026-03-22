@@ -205,13 +205,13 @@ export function StudyTracker() {
       </header>
       
       <div className="flex justify-end mb-6">
-        <div className="text-sm font-medium text-gray-400">
+        <div className="text-sm font-medium text-gray-400 dark:text-slate-500">
           {(savingPlan || savingProgress) ? (
-             <span className="flex items-center text-indigo-500 bg-indigo-50 px-2 py-1 rounded">
+             <span className="flex items-center text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">
                <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> Background Syncing...
              </span>
           ) : (
-             <span className="text-emerald-500 flex items-center bg-emerald-50 px-2 py-1 rounded transition-colors fade-in">
+             <span className="text-emerald-500 flex items-center bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded transition-colors fade-in">
                ✓ Sync Complete
              </span>
           )}
@@ -248,14 +248,14 @@ export function StudyTracker() {
           </div>
         ))}
         {sections.length === 0 && (
-          <div className="text-center p-8 bg-white border border-dashed border-gray-300 rounded-xl text-gray-500">
+          <div className="text-center p-8 bg-white dark:bg-slate-900 border border-dashed border-gray-300 dark:border-slate-700 rounded-xl text-gray-500 dark:text-slate-400">
             No sections found. Click "Add New Section" below to get started!
           </div>
         )}
       </div>
 
       {/* Add Section + Reset Row */}
-      <div className="mt-12 flex flex-col sm:flex-row justify-center gap-4 border-t border-gray-100 pt-8">
+      <div className="mt-12 flex flex-col sm:flex-row justify-center gap-4 border-t border-gray-100 dark:border-slate-800 pt-8">
         <Button 
           variant="primary"
           size="lg" 

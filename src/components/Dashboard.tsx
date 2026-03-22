@@ -16,23 +16,23 @@ export function Dashboard({
 }: DashboardProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-8">
-      <Card className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-indigo-50 to-white text-center border-indigo-100">
-        <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-3">
+      <Card className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/50 dark:to-slate-900 text-center border-indigo-100 dark:border-indigo-900/50">
+        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mb-3">
           <BookOpen size={24} />
         </div>
-        <h3 className="text-lg font-bold text-gray-800 mb-1">COURSES</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-1">COURSES</h3>
         <p className="text-2xl font-black text-indigo-600">
-          {coursesCompleted} <span className="text-base font-medium text-gray-500">/ {coursesTotal} tasks done</span>
+          {coursesCompleted} <span className="text-base font-medium text-gray-500 dark:text-slate-400">/ {coursesTotal} tasks done</span>
         </p>
       </Card>
 
-      <Card className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-emerald-50 to-white text-center border-emerald-100">
-        <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-3">
+      <Card className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/50 dark:to-slate-900 text-center border-emerald-100 dark:border-emerald-900/50">
+        <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-3">
           <Target size={24} />
         </div>
-        <h3 className="text-lg font-bold text-gray-800 mb-1">PLACEMENT PREP</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-1">PLACEMENT PREP</h3>
         <p className="text-2xl font-black text-emerald-600">
-          {placementCompleted} <span className="text-base font-medium text-gray-500">/ {placementTotal} done</span>
+          {placementCompleted} <span className="text-base font-medium text-gray-500 dark:text-slate-400">/ {placementTotal} done</span>
         </p>
       </Card>
     </div>

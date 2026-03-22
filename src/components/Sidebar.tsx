@@ -23,7 +23,7 @@ export function Sidebar({ user }: { user?: any }) {
             <div className="w-8 h-8 rounded bg-gradient-to-tr from-indigo-500 to-emerald-400 flex items-center justify-center shadow-md">
                <Globe className="text-white w-5 h-5"/>
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Tracker<span className="text-indigo-500">Pro</span></span>
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Study<span className="text-indigo-500">Tracker</span></span>
          </Link>
 
          <nav className="space-y-2">
