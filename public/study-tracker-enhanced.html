@@ -537,7 +537,8 @@
 
     <div class="tip">
         ✏️ Tick boxes as you complete each item · Progress is saved automatically!<br>
-        💡 Drag to reorder · Click ✏️ to edit · Set 📅 due dates · 📥 Export your progress
+        💡 Drag to reorder · Click ✏️ to edit · Set 📅 due dates · 📥 Export your progress<br>
+        <span id="sync-status" style="font-size: 0.9em; font-weight: 600; margin-top: 4px; display: inline-block;">⏳ Connecting...</span>
     </div>
 
     <div class="dashboard">
@@ -634,7 +635,7 @@ const STATIC_SECTIONS = [
 ];
 
 // ================================================================
-//  STATE MANAGEMENT
+//  STATE MANAGEMENT — Hybrid: MongoDB API + localStorage fallback
 // ================================================================
 const LS_KEYS = {
     THEME: 'st_theme',
@@ -644,6 +645,7 @@ const LS_KEYS = {
     TITLES: 'st_titles',
     DATES: 'st_dates',
     ORDER: 'st_order',
+    PLAN_CACHE: 'st_plan_cache',
 };
 
 function loadJSON(key, fallback) {
@@ -658,12 +660,112 @@ let titleOverrides = loadJSON(LS_KEYS.TITLES, {});
 let taskDates = loadJSON(LS_KEYS.DATES, {});
 let taskOrder = loadJSON(LS_KEYS.ORDER, {});
 
-function saveChecked() { saveJSON(LS_KEYS.CHECKED, [...checkedSet]); }
+let isOnline = false;  // whether we have API access
+
+function saveChecked() {
+    saveJSON(LS_KEYS.CHECKED, [...checkedSet]);
+    syncProgressToAPI();  // also push to MongoDB
+}
 function saveDynamic() { saveJSON(LS_KEYS.DYNAMIC, dynamicSections); }
 function saveCollapsed() { saveJSON(LS_KEYS.COLLAPSED, [...collapsedSet]); }
 function saveTitles() { saveJSON(LS_KEYS.TITLES, titleOverrides); }
 function saveDates() { saveJSON(LS_KEYS.DATES, taskDates); }
 function saveOrder() { saveJSON(LS_KEYS.ORDER, taskOrder); }
+
+// ================================================================
+//  MONGODB API SYNC
+// ================================================================
+let syncTimer = null;
+
+function syncProgressToAPI() {
+    if (!isOnline) return;
+    // Debounce: wait 1s before syncing to avoid hammering the API
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(async () => {
+        const tasksArray = [];
+        STATIC_SECTIONS.forEach(section => {
+            section.groups.forEach(group => {
+                group.tasks.forEach(task => {
+                    tasksArray.push({
+                        id: task.id,
+                        group: group.id,
+                        completed: checkedSet.has(task.id)
+                    });
+                });
+            });
+        });
+        try {
+            const res = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tasks: tasksArray }),
+            });
+            if (res.ok) updateSyncStatus('synced');
+            else updateSyncStatus('error');
+        } catch {
+            updateSyncStatus('error');
+        }
+    }, 1000);
+}
+
+async function loadFromAPI() {
+    try {
+        // Fetch study plan from MongoDB
+        const planRes = await fetch('/api/plan');
+        if (planRes.ok) {
+            const planData = await planRes.json();
+            if (planData.sections && planData.sections.length > 0) {
+                // Replace static sections with database plan
+                STATIC_SECTIONS.length = 0;
+                planData.sections.forEach(s => STATIC_SECTIONS.push(s));
+                saveJSON(LS_KEYS.PLAN_CACHE, planData.sections);
+            }
+        }
+
+        // Fetch progress from MongoDB
+        const progressRes = await fetch('/api/tasks');
+        if (progressRes.ok) {
+            const progressData = await progressRes.json();
+            if (progressData.tasks) {
+                checkedSet.clear();
+                progressData.tasks.forEach(t => {
+                    if (t.completed) checkedSet.add(t.id);
+                });
+                saveJSON(LS_KEYS.CHECKED, [...checkedSet]);
+            }
+        }
+
+        isOnline = true;
+        updateSyncStatus('synced');
+        renderAll();
+    } catch {
+        // API not available — use localStorage (offline mode)
+        isOnline = false;
+        updateSyncStatus('offline');
+        // Try loading cached plan from localStorage
+        const cached = loadJSON(LS_KEYS.PLAN_CACHE, null);
+        if (cached && cached.length > 0) {
+            STATIC_SECTIONS.length = 0;
+            cached.forEach(s => STATIC_SECTIONS.push(s));
+        }
+        renderAll();
+    }
+}
+
+function updateSyncStatus(status) {
+    const el = document.getElementById('sync-status');
+    if (!el) return;
+    if (status === 'synced') {
+        el.textContent = '☁️ Synced to Database';
+        el.style.color = 'var(--success)';
+    } else if (status === 'error') {
+        el.textContent = '⚠️ Sync failed — retrying...';
+        el.style.color = 'var(--danger)';
+    } else {
+        el.textContent = '💾 Offline — using local storage';
+        el.style.color = 'var(--text-muted)';
+    }
+}
 
 // ================================================================
 //  THEME
@@ -1088,9 +1190,10 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 });
 
 // ================================================================
-//  INITIALIZATION
+//  INITIALIZATION — Try MongoDB first, fall back to localStorage
 // ================================================================
-renderAll();
+renderAll();  // Render immediately with localStorage data
+loadFromAPI();  // Then try to sync from MongoDB (will re-render if successful)
 </script>
 </body>
 </html>
