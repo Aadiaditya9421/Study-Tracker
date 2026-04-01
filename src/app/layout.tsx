@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 import { Providers } from "@/components/Providers";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
